@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Testing/Dev files
+tweelist.html
+dms.html
+convert_flags.js
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
