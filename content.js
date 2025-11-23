@@ -62,10 +62,26 @@ function processTimelineData(data) {
     });
 }
 
+const userLocationCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 async function fetchAccountLocation(screenName) {
     if (!authHeaders) {
         console.warn('X Country: No auth headers yet, skipping fetch for', screenName);
         return;
+    }
+
+    // Check cache
+    if (userLocationCache.has(screenName)) {
+        const { country, timestamp } = userLocationCache.get(screenName);
+        if (Date.now() - timestamp < CACHE_TTL) {
+            console.log(`X Country: Using cached location for ${screenName}: ${country}`);
+            userCountryMap.set(screenName, country);
+            updateUI();
+            return;
+        } else {
+            userLocationCache.delete(screenName); // Expired
+        }
     }
 
     const queryId = 'XRqGa7EeokUU5kppkh13EA';
@@ -85,6 +101,7 @@ async function fetchAccountLocation(screenName) {
 
         if (country) {
             userCountryMap.set(screenName, country);
+            userLocationCache.set(screenName, { country, timestamp: Date.now() }); // Cache it
             console.log(`X Country: ${screenName} is based in ${country}`);
             updateUI();
         }
